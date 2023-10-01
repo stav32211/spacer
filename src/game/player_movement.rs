@@ -15,7 +15,10 @@ impl Plugin for PlayerMovementPlugin {
     }
 }
 
-fn move_player_wasd(mut player_query: Query<(&mut ExternalImpulse, &mut Player ,&mut Velocity)>, keyboard: Res<Input<KeyCode>>) {
+fn move_player_wasd(
+    mut player_query: Query<(&mut ExternalImpulse, &mut Player, &mut Velocity)>,
+    keyboard: Res<Input<KeyCode>>,
+    time: Res<Time>) {
     let mut movement_input = Vec2::ZERO;
 
     let up = vec2(0., 1.);
@@ -36,20 +39,21 @@ fn move_player_wasd(mut player_query: Query<(&mut ExternalImpulse, &mut Player ,
         movement_input += left;
     }
 
+    let delta_time = time.delta().as_millis() as f32;
     let normalized_movement = movement_input.normalize_or_zero();
-    let movement = normalized_movement * PLAYER_SPEED;
+    let movement = normalized_movement * PLAYER_SPEED * delta_time;
 
-    let (mut ext_imp, mut player,mut velocity) = player_query.single_mut();
+    let (mut ext_imp, mut player, mut velocity) = player_query.single_mut();
     let speed = velocity.linvel.length();
-    if  speed < 0.5{
+    if speed < 0.5 {
         velocity.linvel = Vec2::ZERO;
     }
+
     screen_print!("speed: {speed}");
+    screen_print!("delta time: {delta_time}");
     let speed_mod = speed.max(1.).sqrt();
-    let delta =  movement / speed_mod;
-    ext_imp.impulse +=delta;
-
-
+    let delta = movement / speed_mod;
+    ext_imp.impulse += delta;
 
 
     if normalized_movement != Vec2::ZERO {

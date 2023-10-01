@@ -1,7 +1,7 @@
 use bevy::math::*;
 use bevy::prelude::*;
 use bevy::prelude::{IntoSystemConfigs, Update};
-use bevy::utils::HashMap;
+use bevy::utils::{HashMap, HashSet};
 use bevy_rapier2d::prelude::Vect;
 
 use super::components::player::Player;
@@ -59,7 +59,7 @@ pub struct MapTile {
 
 #[derive(Resource, Default)]
 pub struct Map {
-    pub tiles: HashMap<TileLocation, MapTile>,
+    pub tiles: HashSet<TileLocation>,
 }
 
 fn gen_tiles(mut map: ResMut<Map>, player_transform: Query<&Transform, With<Player>>, mut gizmos: Gizmos) {
@@ -85,7 +85,6 @@ fn gen_tiles(mut map: ResMut<Map>, player_transform: Query<&Transform, With<Play
     };
 
     for coord in tiles_in_proximity.into_iter() {
-        // TODO
-        map.tiles.entry(coord).or_insert(MapTile::default());
+        map.tiles.entry(coord).or_insert();
     }
 }

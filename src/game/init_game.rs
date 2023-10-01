@@ -27,32 +27,8 @@ const BG_COLOR: Color = Color::Rgba {
 };
 
 pub fn spawn_player(mut commands: Commands) {
-    let sprite = SpriteBundle {
-        sprite: Sprite {
-            color: Default::default(),
-            flip_x: false,
-            flip_y: false,
-            custom_size: None,
-            rect: None,
-            anchor: Default::default(),
-        },
-        transform: Transform::from_xyz(0.0, 0.0, 00.0),
-        ..default()
-    };
-
     let player = &mut commands
-        .spawn(Collider::ball(PLAYER_RADIUS));
-
-    player.insert(ColliderMassProperties::Density(1.0))
-        .insert(sprite)
-        .insert(GravityScale(0.0)) // TODO global conf
-        .insert(RigidBody::Dynamic)
-        .insert(Velocity::default())
-        .insert(Player::default())
-        .insert(ExternalImpulse::default())
-        .insert(ExternalForce::default())
-        .insert(Damping { linear_damping: 3., ..default() })
-    ;
+        .spawn(PlayerBundle::default());
 
     attach_child_force_emitter(player, 150., 5.);
 }

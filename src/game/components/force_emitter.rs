@@ -10,6 +10,7 @@ pub struct ForceEmittingPlugin;
 
 impl Plugin for ForceEmittingPlugin {
     fn build(&self, app: &mut App) {
+        
         app.add_systems(PreUpdate, update_force_emitter_on_sensor_collision);
     }
 }
