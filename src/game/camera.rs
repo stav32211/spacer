@@ -36,8 +36,8 @@ pub fn camera_follow_player(
     gizmos.circle_2d(viewport.min, 10., Color::WHITE);
     gizmos.circle_2d(viewport.max, 10., Color::WHITE);
 
-    let width_limit = viewport.width() * 0.23;
-    let height_limit = viewport.height() * 0.23;
+    let width_limit = viewport.width() * 0.2;
+    let height_limit = viewport.height() * 0.2;
 
     // calc limits
     let left_limit = viewport.min.x + width_limit;

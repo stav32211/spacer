@@ -1,8 +1,8 @@
 use bevy::math::vec2;
 use bevy::prelude::*;
-use bevy_debug_text_overlay::screen_print;
 use bevy_rapier2d::dynamics::ExternalImpulse;
-use bevy_rapier2d::prelude::{ExternalForce, Velocity};
+use bevy_rapier2d::prelude::ExternalForce;
+
 use super::components::player::*;
 use super::GameSet;
 
@@ -16,7 +16,7 @@ impl Plugin for PlayerMovementPlugin {
 }
 
 fn move_player_wasd(
-    mut player_query: Query<(&mut ExternalForce, &mut Player, &mut Velocity)>,
+    mut player_query: Query<(&mut ExternalForce, &mut Player)>,
     keyboard: Res<Input<KeyCode>>,
     time: Res<Time>) {
     let mut movement_input = Vec2::ZERO;
@@ -43,25 +43,14 @@ fn move_player_wasd(
     let normalized_movement = movement_input.normalize_or_zero();
     let force_delta = normalized_movement * delta_time * 1000. * PLAYER_SPEED;
 
-    let (mut ext_force, mut player, mut velocity) = player_query.single_mut();
-    let speed = velocity.linvel.length();
+    let (mut ext_force, mut player) = player_query.single_mut();
 
-    if speed < 0.5 {
-        velocity.linvel = Vec2::ZERO; // TODO sleep instead?
-    }
-
-    screen_print!("speed: {speed}");
-    screen_print!("delta time: {delta_time}");
     let delta = (force_delta);
 
     if normalized_movement != Vec2::ZERO {
         player.last_movement_direction = normalized_movement;
     }
     let new_force = ext_force.force + delta;
-    let len = new_force.length();
-    screen_print!("{len}");
-
-    screen_print!("update");
     ext_force.force = new_force;
 
     let weakened_force = ext_force.force * 0.95_f32.powf(delta_time * 60.);

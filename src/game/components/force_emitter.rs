@@ -10,11 +10,9 @@ pub struct ForceEmittingPlugin;
 
 impl Plugin for ForceEmittingPlugin {
     fn build(&self, app: &mut App) {
-        
         app.add_systems(PreUpdate, update_force_emitter_on_sensor_collision);
     }
 }
-
 
 #[derive(Component, Clone)]
 pub struct ForceEmitter {
@@ -23,27 +21,59 @@ pub struct ForceEmitter {
     force_handles: HashMap<Entity, Vec2>,
 }
 
+#[derive(Bundle)]
+pub struct ForceEmitterBundle {
+    collider: Collider,
+    transform: Transform,
+    sensor: Sensor,
+    active_events: ActiveEvents,
+    mass: ColliderMassProperties,
+    force_emitter: ForceEmitter,
+}
+
+impl ForceEmitterBundle {
+    fn new(radius: f32, force: f32, entity: &Entity) -> Self {
+        Self {
+            collider: Collider::ball(radius),
+            transform: Default::default(),
+            sensor: Default::default(),
+            active_events: ActiveEvents::COLLISION_EVENTS,
+            mass: ColliderMassProperties::Mass(0.0),
+            force_emitter: ForceEmitter {
+                intensity: force,
+                owner: *entity,
+                force_handles: Default::default(),
+            },
+        }
+    }
+}
+
+
 pub fn attach_child_force_emitter<'w, 's, 'a>(
     entity_commands: &'a mut EntityCommands<'w, 's, 'a>,
     radius: f32,
     intensity: f32) -> &'a mut EntityCommands<'w, 's, 'a> {
-    let owner = entity_commands.id();
+    let owner = &entity_commands.id();
 
     entity_commands.with_children(|parent| {
-        parent
-            //.spawn(RigidBody::Fixed)
-            .spawn(Collider::ball(radius))
-            .insert(Transform::default())
-            .insert(Sensor)
-            //.insert(ActiveCollisionTypes::DYNAMIC_STATIC | ActiveCollisionTypes::KINEMATIC_STATIC)
-            .insert(ActiveEvents::COLLISION_EVENTS)
-            .insert(ColliderMassProperties::Mass(0.0))
-            .insert(ForceEmitter {
-                intensity,
-                owner,
-                force_handles: HashMap::new(),
-            });
+        parent.spawn(ForceEmitterBundle::new(radius,intensity,owner));
     })
+
+    // entity_commands.with_children(|parent| {
+    //     parent
+    //         //.spawn(RigidBody::Fixed)
+    //         .spawn(Collider::ball(radius))
+    //         .insert(Transform::default())
+    //         .insert(Sensor)
+    //         //.insert(ActiveCollisionTypes::DYNAMIC_STATIC | ActiveCollisionTypes::KINEMATIC_STATIC)
+    //         .insert(ActiveEvents::COLLISION_EVENTS)
+    //         .insert(ColliderMassProperties::Mass(0.0))
+    //         .insert(ForceEmitter {
+    //             intensity,
+    //             owner,
+    //             force_handles: HashMap::new(),
+    //         });
+    // })
 }
 
 fn collision_is_gravity_zone<'w, 'a>(

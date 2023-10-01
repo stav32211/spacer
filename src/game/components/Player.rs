@@ -7,7 +7,7 @@ use bevy_rapier2d::prelude::{Collider, ColliderMassProperties, ExternalImpulse, 
 
 pub const PLAYER_RADIUS: f32 = 20.;
 pub const PLAYER_SPEED: f32 = 40.;
-pub const PLAYER_DASH_AMOUNT: f32 = 800.;
+pub const PLAYER_DASH_AMOUNT: f32 = 1600.;
 pub const PLAYER_DAMPING: f32 = 25.;
 
 #[derive(Component, Default, Copy, Clone)]
