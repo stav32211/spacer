@@ -6,9 +6,9 @@ use bevy_rapier2d::dynamics::{Damping, ExternalForce, Velocity};
 use bevy_rapier2d::prelude::{Collider, ColliderMassProperties, ExternalImpulse, RigidBody};
 
 pub const PLAYER_RADIUS: f32 = 20.;
-pub const PLAYER_SPEED: f32 = 50.;
+pub const PLAYER_SPEED: f32 = 40.;
 pub const PLAYER_DASH_AMOUNT: f32 = 800.;
-pub const PLAYER_DAMPING: f32 = 5.;
+pub const PLAYER_DAMPING: f32 = 25.;
 
 #[derive(Component, Default, Copy, Clone)]
 pub struct Player {

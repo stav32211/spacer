@@ -2,7 +2,7 @@ use bevy::math::vec2;
 use bevy::prelude::*;
 use bevy_debug_text_overlay::screen_print;
 use bevy_rapier2d::dynamics::ExternalImpulse;
-use bevy_rapier2d::prelude::Velocity;
+use bevy_rapier2d::prelude::{ExternalForce, Velocity};
 use super::components::player::*;
 use super::GameSet;
 
@@ -16,7 +16,7 @@ impl Plugin for PlayerMovementPlugin {
 }
 
 fn move_player_wasd(
-    mut player_query: Query<(&mut ExternalImpulse, &mut Player, &mut Velocity)>,
+    mut player_query: Query<(&mut ExternalForce, &mut Player, &mut Velocity)>,
     keyboard: Res<Input<KeyCode>>,
     time: Res<Time>) {
     let mut movement_input = Vec2::ZERO;
@@ -39,25 +39,36 @@ fn move_player_wasd(
         movement_input += left;
     }
 
-    let delta_time = time.delta().as_millis() as f32;
+    let delta_time = time.delta_seconds();
     let normalized_movement = movement_input.normalize_or_zero();
-    let movement = normalized_movement * PLAYER_SPEED * delta_time;
+    let force_delta = normalized_movement * delta_time * 1000. * PLAYER_SPEED;
 
-    let (mut ext_imp, mut player, mut velocity) = player_query.single_mut();
+    let (mut ext_force, mut player, mut velocity) = player_query.single_mut();
     let speed = velocity.linvel.length();
+
     if speed < 0.5 {
-        velocity.linvel = Vec2::ZERO;
+        velocity.linvel = Vec2::ZERO; // TODO sleep instead?
     }
 
     screen_print!("speed: {speed}");
     screen_print!("delta time: {delta_time}");
-    let speed_mod = speed.max(1.).sqrt();
-    let delta = movement / speed_mod;
-    ext_imp.impulse += delta;
-
+    let delta = (force_delta);
 
     if normalized_movement != Vec2::ZERO {
         player.last_movement_direction = normalized_movement;
+    }
+    let new_force = ext_force.force + delta;
+    let len = new_force.length();
+    screen_print!("{len}");
+
+    screen_print!("update");
+    ext_force.force = new_force;
+
+    let weakened_force = ext_force.force * 0.95_f32.powf(delta_time * 60.);
+    ext_force.force = if weakened_force.length() < 5. {
+        Vec2::ZERO
+    } else {
+        weakened_force
     }
 }
 
